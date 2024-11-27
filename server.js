@@ -38,17 +38,6 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// API Routes
-app.get('/api/user/:username', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 // Game status
 let gameStatus = {
     isActive: false,
@@ -60,6 +49,20 @@ let gameStatus = {
     startTime: null,
     onlinePlayers: new Set()
 };
+
+// API Routes
+app.get('/api/user/:username', async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user) {
+            user = new User({ username });
+            await user.save();
+        }
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
 
 // Game routes
 app.get('/api/game/status', (req, res) => {
@@ -108,6 +111,10 @@ app.get('/api/admin/users', async (req, res) => {
 // Serve static files
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
 // Start server
