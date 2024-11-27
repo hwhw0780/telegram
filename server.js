@@ -5,12 +5,18 @@ const path = require('path');
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
+
+// Update the bot initialization and port handling
+const PORT = process.env.PORT || 3001;
+
+// Initialize bot with webhook
 const bot = new TelegramBot(token, {
     webHook: {
-        port: process.env.PORT || 3001
+        port: PORT
     }
 });
 
+// Initialize Express app
 const app = express();
 
 // Middleware
@@ -156,177 +162,24 @@ bot.on('error', (error) => {
     console.log('Telegram Bot Error:', error);
 });
 
-// Set webhook URL (add this after bot initialization)
+// Move the webhook setup after all routes
 const url = 'https://niu-niu-game.onrender.com';
-bot.setWebHook(`${url}/bot${token}`);
-
-// Add webhook handler
-app.post(`/bot${token}`, (req, res) => {
-    bot.handleUpdate(req.body);
-    res.sendStatus(200);
-});
-
-// Remove polling error handlers since we're not using polling
-bot.on('webhook_error', (error) => {
-    console.log('Webhook Error:', error.code);
-});
-
-// Add webhook success handler
-bot.on('webhook_success', (msg) => {
-    console.log('Webhook successful');
-});
-
-// Serve static files
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/niuniu', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'niuniu.html'));
-});
-
-// Admin routes
-app.get('/api/admin/users', async (req, res) => {
-    try {
-        const users = await User.find({});
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.delete('/api/admin/users/:username', async (req, res) => {
-    try {
-        await User.findOneAndDelete({ username: req.params.username });
-        res.json({ message: 'User deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Add route for admin page
-app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
-
-// Admin authentication
-app.post('/api/admin/login', (req, res) => {
-    const { username, password } = req.body;
-    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
-        res.json({ success: true });
-    } else {
-        res.status(401).json({ error: 'Invalid credentials' });
-    }
-});
-
-app.post('/api/admin/users/:username/points', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        
-        user.points += req.body.amount;
-        await user.save();
-        
-        res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-app.post('/api/admin/users/:username/agent', async (req, res) => {
-    try {
-        const user = await User.findOne({ username: req.params.username });
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        
-        user.agent = req.body.agent;
-        await user.save();
-        
-        res.json(user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// At the top with other declarations
-const onlinePlayers = new Set(); // Store online player usernames
-
-// Update the room routes
-app.post('/api/room/enter', async (req, res) => {
-    const { username } = req.body;
-    if (username) {
-        onlinePlayers.add(username);
-        console.log('Player entered:', username, 'Total players:', onlinePlayers.size);
-    }
-    res.json({ count: onlinePlayers.size });
-});
-
-app.post('/api/room/leave', async (req, res) => {
-    const { username } = req.body;
-    if (username) {
-        onlinePlayers.delete(username);
-        console.log('Player left:', username, 'Total players:', onlinePlayers.size);
-    }
-    res.json({ count: onlinePlayers.size });
-});
-
-app.get('/api/room/count', (req, res) => {
-    // Clean up any undefined or null values
-    onlinePlayers.forEach(player => {
-        if (!player) onlinePlayers.delete(player);
+bot.setWebHook(`${url}/bot${token}`)
+    .then(() => {
+        console.log('Webhook set successfully');
+    })
+    .catch(err => {
+        console.error('Error setting webhook:', err);
     });
-    res.json({ count: onlinePlayers.size });
-});
 
-// Add this with other admin routes
-app.post('/api/admin/reset-points', async (req, res) => {
-    try {
-        // Update all users' points to 0 instead of 1000
-        await User.updateMany({}, { points: 0 });
-        res.json({ message: 'All points reset successfully' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// Add at the top with other declarations
-let gameStatus = {
-    isActive: false,
-    phase: 'waiting',
-    currentBanker: null,
-    highestBid: 0,
-    bids: new Map(),
-    bets: new Map(),
-    startTime: null,
-    onlinePlayers: new Set()
-};
-
-// Add new endpoint to get game status
-app.get('/api/game/status', (req, res) => {
-    res.json({
-        ...gameStatus,
-        onlinePlayers: Array.from(gameStatus.onlinePlayers),
-        bids: Array.from(gameStatus.bids.entries()),
-        bets: Array.from(gameStatus.bets.entries())
-    });
-});
-
-// Add endpoint to start new game
-app.post('/api/game/start', async (req, res) => {
-    if (!gameStatus.isActive) {
-        gameStatus = {
-            isActive: true,
-            phase: 'bidding',
-            currentBanker: null,
-            highestBid: 0,
-            bids: new Map(),
-            bets: new Map(),
-            startTime: Date.now()
-        };
-    }
-    res.json(gameStatus);
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+// Start server with error handling
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+}).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.log(`Port ${PORT} is busy, trying ${PORT + 1}`);
+        server.listen(PORT + 1);
+    } else {
+        console.error('Server error:', err);
+    }
 }); 
