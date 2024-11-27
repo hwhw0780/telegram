@@ -58,3 +58,42 @@ window.addEventListener('beforeunload', () => {
 
 setInterval(updatePlayerCount, 5000);
 updatePlayerCount();
+
+function showGameRoom() {
+    document.getElementById('lobbySection').classList.add('hidden');
+    document.getElementById('gameSection').classList.remove('hidden');
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('user');
+    if (username) {
+        enterRoom(username);
+    }
+}
+
+function enterRoom(username) {
+    try {
+        fetch('/api/room/enter', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username })
+        });
+    } catch (err) {
+        console.error('Error entering room:', err);
+    }
+}
+
+// Load user data on page load
+document.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const username = urlParams.get('user');
+
+    if (!username) {
+        window.location.href = '/';
+        return;
+    }
+
+    await loadUserData(username);
+    setInterval(() => loadUserData(username), 5000);
+});

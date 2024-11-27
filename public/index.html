@@ -4,33 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gaming Hub</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <div class="welcome">
-                <span class="user-icon">👤</span>
-                <span class="username">TelegramUser123</span>
+        <!-- Top Bar (Always visible) -->
+        <div class="top-bar">
+            <div class="room-info">
+                <span class="player-count">Online Players: 0</span>
             </div>
-            <div class="logo">
-                <span class="logo-text">GAME</span>
-                <span class="logo-highlight">HUB</span>
+            <div class="user-info">
+                <span class="username">Loading...</span>
+                <div class="points-display">
+                    <span class="points-icon">💎</span>
+                    <span class="points">...</span>
+                </div>
             </div>
-            <div class="points-container">
-                <span class="points-icon">💎</span>
-                <span class="points">1000</span>
-            </div>
-        </header>
+        </div>
 
-        <main>
+        <!-- Lobby Section -->
+        <div id="lobbySection" class="lobby-section">
             <div class="rooms-container">
-                <div class="room active" onclick="enterNiuNiu()">
+                <div class="room active" onclick="showGameRoom()">
                     <div class="room-content">
                         <div class="room-icon">🎲</div>
                         <h2>NIUNIU ROOM</h2>
-                        <p class="room-status">Online Players: 28</p>
                         <button class="enter-btn">Enter Room</button>
                     </div>
                     <div class="pulse"></div>
@@ -47,7 +46,70 @@
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
+
+        <!-- Game Room Section (Initially Hidden) -->
+        <div id="gameSection" class="game-section hidden">
+            <div class="game-area">
+                <!-- Left Side - Banker -->
+                <div class="banker-side">
+                    <div class="banker-container">
+                        <h2>Banker</h2>
+                        <div class="banker-box">
+                            <div class="banker-info">
+                                <table class="game-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Bet</th>
+                                            <th>Get</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bankerTableBody">
+                                        <!-- Banker info will be here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="banker-actions">
+                                <button class="bid-btn">Bid Banker</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Section -->
+                    <div class="chat-container">
+                        <h3>Chat</h3>
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input">
+                            <input type="text" id="messageInput" placeholder="Type a message...">
+                            <button onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side - Players -->
+                <div class="players-side">
+                    <h2>Players</h2>
+                    <div class="players-table-container">
+                        <table class="game-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Bet</th>
+                                    <th>Get</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playersTableBody">
+                                <!-- Players will be added here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="betting-actions">
+                        <button class="bet-btn" disabled>Place Bet</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
