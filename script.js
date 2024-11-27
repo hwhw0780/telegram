@@ -42,9 +42,10 @@ function enterNiuNiu() {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('user');
     if (username) {
-        enterRoom(username);
+        window.location.href = `niuniu.html?user=${username}`;
+    } else {
+        window.location.href = 'niuniu.html';
     }
-    window.location.href = 'niuniu.html' + (username ? `?user=${username}` : '');
 }
 
 window.addEventListener('beforeunload', () => {

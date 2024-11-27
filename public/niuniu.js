@@ -2,11 +2,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('user');
 
-    if (username) {
-        await loadUserData(username);
-        // Update user data every 5 seconds
-        setInterval(() => loadUserData(username), 5000);
+    if (!username) {
+        // If no username, redirect back to main page
+        window.location.href = '/';
+        return;
     }
+
+    await loadUserData(username);
+    // Update user data every 5 seconds
+    setInterval(() => loadUserData(username), 5000);
 });
 
 async function loadUserData(username) {
