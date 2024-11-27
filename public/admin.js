@@ -1,6 +1,37 @@
 document.addEventListener('DOMContentLoaded', () => {
     loadUsers();
     
+    // Logout button
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/admin-login.html';
+        }
+    });
+
+    // Reset all points button
+    document.getElementById('refreshBtn').addEventListener('click', async () => {
+        if (confirm('Are you sure you want to reset all users\' points to 0? This cannot be undone!')) {
+            try {
+                const response = await fetch('/api/admin/reset-points', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    alert('All users\' points have been reset to 0');
+                    loadUsers(); // Refresh the display
+                } else {
+                    alert('Failed to reset points');
+                }
+            } catch (err) {
+                console.error('Error resetting points:', err);
+                alert('Error resetting points');
+            }
+        }
+    });
+
     // Search functionality
     document.getElementById('searchUser').addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -84,7 +115,7 @@ async function deleteUser(username) {
 }
 
 async function adjustPoints(username, amount, isAdd) {
-    if (!amount || isNaN(amount) || amount <= 0) {
+    if (!amount || isNaN(amount)) {
         alert('Please enter a valid amount');
         return;
     }
@@ -103,7 +134,8 @@ async function adjustPoints(username, amount, isAdd) {
         if (response.ok) {
             loadUsers(); // Refresh the display
         } else {
-            alert('Failed to adjust points');
+            const error = await response.json();
+            alert(error.message || 'Failed to adjust points');
         }
     } catch (err) {
         console.error('Error adjusting points:', err);

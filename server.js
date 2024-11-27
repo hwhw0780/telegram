@@ -6,7 +6,13 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, {
-    polling: true,
+    polling: {
+        autoStart: true,
+        params: {
+            timeout: 10,
+            allowed_updates: ["message"]
+        }
+    },
     webHook: false
 });
 
@@ -31,7 +37,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // Create User Schema
 const userSchema = new mongoose.Schema({
     username: String,
-    points: { type: Number, default: 1000 },
+    points: { type: Number, default: 0 },
     agent: String,
     telegramId: String,
     gameHistory: [{
@@ -131,12 +137,12 @@ bot.onText(/\/start/, async (msg) => {
             // Create new user if doesn't exist
             user = new User({ 
                 username,
-                points: 1000,
+                points: 0,
                 telegramId: chatId
             });
             await user.save();
             console.log('Created new user:', user);
-            bot.sendMessage(chatId, `Welcome ${username}! Your account has been created with 1000 points.`);
+            bot.sendMessage(chatId, `Welcome ${username}! Your account has been created.`);
         } else {
             bot.sendMessage(chatId, `Welcome back ${username}! Your current points: ${user.points}`);
         }
@@ -158,6 +164,14 @@ bot.on('error', (error) => {
 // Add polling error handler
 bot.on('polling_error', (error) => {
     console.log('Polling Error:', error);
+    if (error.code === 'ETELEGRAM' && error.response.statusCode === 409) {
+        console.log('Conflict detected, restarting bot...');
+        bot.stopPolling()
+            .then(() => {
+                return new Promise(resolve => setTimeout(resolve, 1000));
+            })
+            .then(() => bot.startPolling());
+    }
 });
 
 // Add this to see if bot is receiving messages
@@ -256,6 +270,17 @@ app.post('/api/room/leave', async (req, res) => {
 
 app.get('/api/room/count', (req, res) => {
     res.json({ count: onlinePlayers.size });
+});
+
+// Add this with other admin routes
+app.post('/api/admin/reset-points', async (req, res) => {
+    try {
+        // Update all users' points to 0 instead of 1000
+        await User.updateMany({}, { points: 0 });
+        res.json({ message: 'All points reset successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 3001;

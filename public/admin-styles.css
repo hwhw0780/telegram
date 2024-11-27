@@ -183,4 +183,21 @@ header {
 .points-edit input {
     width: 80px;
     text-align: center;
+}
+
+.header-right {
+    display: flex;
+    gap: 1rem;
+}
+
+.refresh-btn {
+    background: #ffa502;
+}
+
+.logout-btn {
+    background: #ff4757;
+}
+
+.header-left {
+    flex: 1;
 } 
