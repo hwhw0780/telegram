@@ -291,6 +291,38 @@ app.post('/api/admin/reset-points', async (req, res) => {
     }
 });
 
+// Add at the top with other declarations
+let gameStatus = {
+    isActive: false,
+    phase: 'waiting', // waiting, bidding, betting, dealing
+    currentBanker: null,
+    highestBid: 0,
+    bids: new Map(),
+    bets: new Map(),
+    startTime: null
+};
+
+// Add new endpoint to get game status
+app.get('/api/game/status', (req, res) => {
+    res.json(gameStatus);
+});
+
+// Add endpoint to start new game
+app.post('/api/game/start', async (req, res) => {
+    if (!gameStatus.isActive) {
+        gameStatus = {
+            isActive: true,
+            phase: 'bidding',
+            currentBanker: null,
+            highestBid: 0,
+            bids: new Map(),
+            bets: new Map(),
+            startTime: Date.now()
+        };
+    }
+    res.json(gameStatus);
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

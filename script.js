@@ -100,14 +100,70 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 class NiuNiuGame {
     constructor() {
-        this.gameState = 'waiting'; // waiting, bidding, betting, dealing
+        this.gameState = 'waiting';
         this.currentBanker = null;
         this.highestBid = 0;
-        this.bids = new Map(); // Store all bids
-        this.bets = new Map(); // Store all bets
+        this.bids = new Map();
+        this.bets = new Map();
         this.initializeElements();
         this.initializeEventListeners();
-        this.startGameLoop();
+        this.checkGameStatus();
+    }
+
+    async checkGameStatus() {
+        try {
+            const response = await fetch('/api/game/status');
+            const status = await response.json();
+
+            if (!status.isActive) {
+                // No active game, show bid banker button
+                this.showBidBankerButton();
+            } else {
+                // Game in progress, update state
+                this.gameState = status.phase;
+                this.currentBanker = status.currentBanker;
+                this.highestBid = status.highestBid;
+                this.bids = new Map(status.bids);
+                this.bets = new Map(status.bets);
+                this.updateDisplay();
+            }
+        } catch (err) {
+            console.error('Error checking game status:', err);
+        }
+
+        // Check status every 5 seconds
+        setTimeout(() => this.checkGameStatus(), 5000);
+    }
+
+    showBidBankerButton() {
+        const bankerActions = document.createElement('div');
+        bankerActions.className = 'banker-actions';
+        bankerActions.innerHTML = `
+            <button class="bid-btn" onclick="game.startNewGame()">Bid Banker</button>
+        `;
+        document.querySelector('.banker-box').appendChild(bankerActions);
+    }
+
+    async startNewGame() {
+        try {
+            const response = await fetch('/api/game/start', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const status = await response.json();
+            this.setGameState('bidding');
+            this.startBiddingPhase();
+        } catch (err) {
+            console.error('Error starting new game:', err);
+        }
+    }
+
+    updateDisplay() {
+        this.updateBankerDisplay();
+        this.updatePlayersDisplay();
+        this.setGameState(this.gameState);
     }
 
     initializeElements() {
@@ -126,14 +182,6 @@ class NiuNiuGame {
         this.bidBtn.addEventListener('click', () => this.showBidModal());
         this.betBtn.addEventListener('click', () => this.showBetModal());
         document.getElementById('confirmAmount').addEventListener('click', () => this.handleAmountConfirm());
-    }
-
-    startGameLoop() {
-        // Start with waiting state
-        this.setGameState('waiting');
-        
-        // After 5 seconds, start bidding phase
-        setTimeout(() => this.startBiddingPhase(), 5000);
     }
 
     setGameState(state) {
