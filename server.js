@@ -167,6 +167,30 @@ app.get('/niuniu', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'niuniu.html'));
 });
 
+// Admin routes
+app.get('/api/admin/users', async (req, res) => {
+    try {
+        const users = await User.find({});
+        res.json(users);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/admin/users/:username', async (req, res) => {
+    try {
+        await User.findOneAndDelete({ username: req.params.username });
+        res.json({ message: 'User deleted successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Add route for admin page
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
