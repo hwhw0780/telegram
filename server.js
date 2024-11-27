@@ -134,7 +134,7 @@ bot.onText(/\/start/, async (msg) => {
         }
 
         // Send game link (update this URL to your actual domain)
-        bot.sendMessage(chatId, `Click here to play: https://your-app-name.onrender.com?user=${username}`);
+        bot.sendMessage(chatId, `Click here to play: https://niu-niu-game.onrender.com?user=${username}`);
 
     } catch (err) {
         console.error('Error handling /start command:', err);
