@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 class NiuNiuGame {
     constructor() {
-        this.gameState = 'waiting';
+        this.gameState = 'checking';
         this.currentBanker = null;
         this.highestBid = 0;
         this.bids = new Map();
@@ -115,11 +115,20 @@ class NiuNiuGame {
             const response = await fetch('/api/game/status');
             const status = await response.json();
 
+            const playerCount = document.querySelector('.player-count');
+            if (playerCount) {
+                playerCount.textContent = `Online Players: ${status.onlinePlayers.length}`;
+            }
+
             if (!status.isActive) {
-                // No active game, show bid banker button
-                this.showBidBankerButton();
+                this.setGameState('waiting');
+                const bottomActions = document.createElement('div');
+                bottomActions.className = 'bottom-actions';
+                bottomActions.innerHTML = `
+                    <button class="bid-btn" onclick="game.startNewGame()">Bid Banker</button>
+                `;
+                document.querySelector('.game-area').appendChild(bottomActions);
             } else {
-                // Game in progress, update state
                 this.gameState = status.phase;
                 this.currentBanker = status.currentBanker;
                 this.highestBid = status.highestBid;
@@ -131,8 +140,36 @@ class NiuNiuGame {
             console.error('Error checking game status:', err);
         }
 
-        // Check status every 5 seconds
-        setTimeout(() => this.checkGameStatus(), 5000);
+        setTimeout(() => this.checkGameStatus(), 3000);
+    }
+
+    setGameState(state) {
+        this.gameState = state;
+        const bottomActions = document.querySelector('.bottom-actions');
+        
+        switch(state) {
+            case 'checking':
+                this.statusText.textContent = 'Checking game status...';
+                break;
+            case 'waiting':
+                this.statusText.textContent = 'No active game - Click Bid Banker to start';
+                break;
+            case 'bidding':
+                this.statusText.textContent = 'Banker Bidding Phase';
+                this.bidBtn.disabled = false;
+                this.betBtn.disabled = true;
+                break;
+            case 'betting':
+                this.statusText.textContent = 'Betting Phase';
+                this.bidBtn.disabled = true;
+                this.betBtn.disabled = false;
+                break;
+            case 'dealing':
+                this.statusText.textContent = 'Dealing Phase';
+                this.bidBtn.disabled = true;
+                this.betBtn.disabled = true;
+                break;
+        }
     }
 
     showBidBankerButton() {
@@ -184,32 +221,6 @@ class NiuNiuGame {
         document.getElementById('confirmAmount').addEventListener('click', () => this.handleAmountConfirm());
     }
 
-    setGameState(state) {
-        this.gameState = state;
-        switch(state) {
-            case 'waiting':
-                this.statusText.textContent = 'Waiting for next game...';
-                this.bidBtn.disabled = true;
-                this.betBtn.disabled = true;
-                break;
-            case 'bidding':
-                this.statusText.textContent = 'Banker Bidding Phase';
-                this.bidBtn.disabled = false;
-                this.betBtn.disabled = true;
-                break;
-            case 'betting':
-                this.statusText.textContent = 'Betting Phase';
-                this.bidBtn.disabled = true;
-                this.betBtn.disabled = false;
-                break;
-            case 'dealing':
-                this.statusText.textContent = 'Dealing Phase';
-                this.bidBtn.disabled = true;
-                this.betBtn.disabled = true;
-                break;
-        }
-    }
-
     async handleBankerBid(amount) {
         const username = this.getCurrentUsername();
         if (!username) return;
@@ -223,10 +234,8 @@ class NiuNiuGame {
         this.highestBid = amount;
         this.currentBanker = username;
         
-        // Update banker table
         this.updateBankerDisplay();
         
-        // Reset countdown for rebidding
         this.startCountdown(10, () => this.finalizeBanker());
     }
 
@@ -240,7 +249,7 @@ class NiuNiuGame {
 
     finalizeBanker() {
         if (!this.currentBanker) {
-            this.startGameLoop(); // No bids, restart game
+            this.startGameLoop();
             return;
         }
 
@@ -256,7 +265,6 @@ class NiuNiuGame {
     finalizeBetting() {
         this.setGameState('dealing');
         if (this.getCurrentUsername() === this.currentBanker) {
-            // Show Deal Now button only to banker
             this.showDealButton();
         }
     }
@@ -270,7 +278,6 @@ class NiuNiuGame {
     }
 
     dealCards() {
-        // Show red packets to all players who bet and the banker
         this.bets.forEach((bet, username) => {
             this.showRedPacketToPlayer(username);
         });

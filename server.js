@@ -10,10 +10,15 @@ const bot = new TelegramBot(token, {
         autoStart: true,
         params: {
             timeout: 10,
-            allowed_updates: ["message"]
+            allowed_updates: ["message"],
+            session_id: Date.now()
         }
     },
-    webHook: false
+    webHook: false,
+    request: {
+        retryAfter: 1000,
+        retries: 3
+    }
 });
 
 const app = express();
@@ -163,15 +168,26 @@ bot.on('error', (error) => {
 
 // Add polling error handler
 bot.on('polling_error', (error) => {
-    console.log('Polling Error:', error);
+    console.log('Polling Error:', error.code);
     if (error.code === 'ETELEGRAM' && error.response.statusCode === 409) {
-        console.log('Conflict detected, restarting bot...');
-        bot.stopPolling()
-            .then(() => {
-                return new Promise(resolve => setTimeout(resolve, 1000));
-            })
-            .then(() => bot.startPolling());
+        console.log('Conflict detected, waiting before restart...');
+        setTimeout(() => {
+            bot.stopPolling()
+                .then(() => new Promise(resolve => setTimeout(resolve, 5000)))
+                .then(() => {
+                    console.log('Restarting polling...');
+                    return bot.startPolling();
+                })
+                .catch(err => {
+                    console.error('Error restarting bot:', err);
+                });
+        }, 10000);
     }
+});
+
+// Add connection success handler
+bot.on('polling_success', (msg) => {
+    console.log('Bot polling successful');
 });
 
 // Add this to see if bot is receiving messages
@@ -294,17 +310,23 @@ app.post('/api/admin/reset-points', async (req, res) => {
 // Add at the top with other declarations
 let gameStatus = {
     isActive: false,
-    phase: 'waiting', // waiting, bidding, betting, dealing
+    phase: 'waiting',
     currentBanker: null,
     highestBid: 0,
     bids: new Map(),
     bets: new Map(),
-    startTime: null
+    startTime: null,
+    onlinePlayers: new Set()
 };
 
 // Add new endpoint to get game status
 app.get('/api/game/status', (req, res) => {
-    res.json(gameStatus);
+    res.json({
+        ...gameStatus,
+        onlinePlayers: Array.from(gameStatus.onlinePlayers),
+        bids: Array.from(gameStatus.bids.entries()),
+        bets: Array.from(gameStatus.bets.entries())
+    });
 });
 
 // Add endpoint to start new game
