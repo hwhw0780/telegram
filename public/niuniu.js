@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (username) {
         await loadUserData(username);
-        // Update points every 5 seconds
+        // Update user data every 5 seconds
         setInterval(() => loadUserData(username), 5000);
     }
 });
@@ -14,6 +14,7 @@ async function loadUserData(username) {
         const response = await fetch(`/api/user/${username}`);
         const userData = await response.json();
         
+        // Update header info
         document.querySelector('.username').textContent = userData.username;
         document.querySelector('.points').textContent = userData.points;
         

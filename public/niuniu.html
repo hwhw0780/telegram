@@ -15,10 +15,10 @@
                 <span class="player-count">Online Players: 0</span>
             </div>
             <div class="user-info">
-                <span class="username">Username</span>
+                <span class="username">Loading...</span>
                 <div class="points-display">
                     <span class="points-icon">💎</span>
-                    <span class="points">0</span>
+                    <span class="points">...</span>
                 </div>
             </div>
         </div>
@@ -31,8 +31,18 @@
                     <h2>Banker</h2>
                     <div class="banker-box">
                         <div class="banker-info">
-                            <!-- Banker info will be here -->
-                            <div class="waiting-message">Waiting for banker...</div>
+                            <table class="game-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Bet</th>
+                                        <th>Get</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankerTableBody">
+                                    <!-- Banker info will be here -->
+                                </tbody>
+                            </table>
                         </div>
                         <div class="banker-actions">
                             <button class="bid-btn">Bid Banker</button>
@@ -56,14 +66,19 @@
             <!-- Right Side - Players -->
             <div class="players-side">
                 <h2>Players</h2>
-                <div class="players-container">
-                    <!-- Player slots will be here -->
-                    <div class="player-slot empty">Empty Seat</div>
-                    <div class="player-slot empty">Empty Seat</div>
-                    <div class="player-slot empty">Empty Seat</div>
-                    <div class="player-slot empty">Empty Seat</div>
-                    <div class="player-slot empty">Empty Seat</div>
-                    <div class="player-slot empty">Empty Seat</div>
+                <div class="players-table-container">
+                    <table class="game-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Bet</th>
+                                <th>Get</th>
+                            </tr>
+                        </thead>
+                        <tbody id="playersTableBody">
+                            <!-- Players will be added here -->
+                        </tbody>
+                    </table>
                 </div>
                 <div class="betting-actions">
                     <button class="bet-btn" disabled>Place Bet</button>

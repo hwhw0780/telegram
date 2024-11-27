@@ -116,25 +116,11 @@ body {
 }
 
 .players-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
+    display: block;
 }
 
 .player-slot {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
-    padding: 1rem;
-    min-height: 150px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.player-slot.empty {
-    color: #666;
-    border: 2px dashed #444;
+    display: none;
 }
 
 /* Buttons */
@@ -157,4 +143,32 @@ body {
 button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Add to existing styles */
+.game-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.game-table th,
+.game-table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.game-table th {
+    background: rgba(0, 0, 0, 0.2);
+    font-weight: 600;
+}
+
+.players-table-container {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
 } 
