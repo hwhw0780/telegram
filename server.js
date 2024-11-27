@@ -236,6 +236,28 @@ app.post('/api/admin/users/:username/agent', async (req, res) => {
     }
 });
 
+// Add at the top of server.js with other declarations
+const onlinePlayers = new Set(); // Store online player usernames
+
+// Add these new routes
+app.post('/api/room/enter', async (req, res) => {
+    const { username } = req.body;
+    onlinePlayers.add(username);
+    console.log('Player entered:', username, 'Total players:', onlinePlayers.size);
+    res.json({ count: onlinePlayers.size });
+});
+
+app.post('/api/room/leave', async (req, res) => {
+    const { username } = req.body;
+    onlinePlayers.delete(username);
+    console.log('Player left:', username, 'Total players:', onlinePlayers.size);
+    res.json({ count: onlinePlayers.size });
+});
+
+app.get('/api/room/count', (req, res) => {
+    res.json({ count: onlinePlayers.size });
+});
+
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
