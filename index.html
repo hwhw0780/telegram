@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="welcome">
+                <span class="user-icon">👤</span>
+                <span class="username">TelegramUser123</span>
+            </div>
+            <div class="logo">
+                <span class="logo-text">GAME</span>
+                <span class="logo-highlight">HUB</span>
+            </div>
+            <div class="points-container">
+                <span class="points-icon">💎</span>
+                <span class="points">1000</span>
+            </div>
+        </header>
+
+        <main>
+            <div class="rooms-container">
+                <div class="room active" onclick="enterNiuNiu()">
+                    <div class="room-content">
+                        <div class="room-icon">🎲</div>
+                        <h2>NIUNIU ROOM</h2>
+                        <p class="room-status">Online Players: 28</p>
+                        <button class="enter-btn">Enter Room</button>
+                    </div>
+                    <div class="pulse"></div>
+                </div>
+
+                <div class="room disabled">
+                    <div class="room-content">
+                        <div class="room-icon">🎰</div>
+                        <h2>CASINO ROOM</h2>
+                        <p class="room-status">Coming Soon</p>
+                        <div class="locked-badge">
+                            <span>🔒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html> 

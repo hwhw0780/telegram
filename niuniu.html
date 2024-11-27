@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NiuNiu Room</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="niuniu-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="player-count">55 players</div>
+            <div class="game-status">
+                <span id="statusText">Waiting for next game...</span>
+                <span id="countdown" class="countdown"></span>
+            </div>
+            <div class="points-container">
+                <span class="points-icon">💎</span>
+                <span class="points">1000</span>
+            </div>
+        </header>
+
+        <main class="niuniu-container">
+            <div class="banker-section">
+                <h2 class="section-title">BANKER</h2>
+                <div class="game-table">
+                    <div class="table-header">
+                        <span>Name</span>
+                        <span>Bid</span>
+                        <span>Get:</span>
+                    </div>
+                    <div class="table-content banker-content">
+                        <!-- Banker bids will show here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="players-section">
+                <h2 class="section-title">PLAYERS</h2>
+                <div class="game-table">
+                    <div class="table-header">
+                        <span>Name</span>
+                        <span>Bet</span>
+                        <span>Get:</span>
+                    </div>
+                    <div class="table-content players-content">
+                        <!-- Players bets will show here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Red Packet Modal -->
+            <div id="redPacketModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="red-packet">
+                        <button id="openPacket" class="open-packet-btn">OPEN</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button Section -->
+            <div class="action-section">
+                <!-- Different buttons will show based on game state -->
+                <button id="waitingBtn" class="action-btn" disabled>Waiting for next game...</button>
+                <button id="bidBankerBtn" class="action-btn hidden">Bid Banker</button>
+                <button id="betBtn" class="action-btn hidden">Place Bet</button>
+                <button id="dealBtn" class="action-btn hidden">Deal Now</button>
+            </div>
+
+            <!-- Bid/Bet Input Modal -->
+            <div id="inputModal" class="modal hidden">
+                <div class="modal-content">
+                    <h3 id="modalTitle">Enter Amount</h3>
+                    <input type="number" id="amountInput" class="amount-input">
+                    <button id="confirmAmount" class="confirm-btn">Confirm</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="niuniu.js"></script>
+</body>
+</html> 
