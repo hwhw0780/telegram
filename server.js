@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -14,7 +15,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('./'));
+app.use(express.static('public'));
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
@@ -155,6 +156,15 @@ bot.on('polling_error', (error) => {
 // Add this to see if bot is receiving messages
 bot.on('message', (msg) => {
     console.log('Received message:', msg);
+});
+
+// Serve static files
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/niuniu', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'niuniu.html'));
 });
 
 const PORT = process.env.PORT || 3001;
