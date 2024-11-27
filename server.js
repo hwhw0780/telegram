@@ -32,6 +32,7 @@ mongoose.connect(process.env.MONGODB_URI)
 const userSchema = new mongoose.Schema({
     username: String,
     points: { type: Number, default: 1000 },
+    agent: String,
     telegramId: String,
     gameHistory: [{
         type: { type: String },
@@ -195,6 +196,44 @@ app.delete('/api/admin/users/:username', async (req, res) => {
 // Add route for admin page
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+// Admin authentication
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+    }
+});
+
+app.post('/api/admin/users/:username/points', async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        
+        user.points += req.body.amount;
+        await user.save();
+        
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/admin/users/:username/agent', async (req, res) => {
+    try {
+        const user = await User.findOne({ username: req.params.username });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        
+        user.agent = req.body.agent;
+        await user.save();
+        
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 const PORT = process.env.PORT || 3001;

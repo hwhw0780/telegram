@@ -34,11 +34,21 @@ function displayUsers(users) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${user.username}</td>
-            <td>${user.points}</td>
+            <td>
+                <div class="points-edit">
+                    <span>${user.points}</span>
+                    <input type="number" placeholder="Amount">
+                    <button onclick="adjustPoints('${user.username}', this.previousElementSibling.value, true)">+</button>
+                    <button onclick="adjustPoints('${user.username}', this.previousElementSibling.value, false)">-</button>
+                </div>
+            </td>
+            <td>
+                <input type="text" class="agent-input" value="${user.agent || ''}" 
+                    onchange="updateAgent('${user.username}', this.value)">
+            </td>
             <td>${user.gameHistory.length} games</td>
             <td>${user.transactions.length} transactions</td>
             <td>
-                <button class="action-btn edit-btn" onclick="editUser('${user.username}')">Edit</button>
                 <button class="action-btn delete-btn" onclick="deleteUser('${user.username}')">Delete</button>
             </td>
         `;
@@ -70,5 +80,48 @@ async function deleteUser(username) {
         } catch (err) {
             console.error('Error deleting user:', err);
         }
+    }
+}
+
+async function adjustPoints(username, amount, isAdd) {
+    if (!amount || isNaN(amount)) {
+        alert('Please enter a valid amount');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/admin/users/${username}/points`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                amount: parseInt(amount) * (isAdd ? 1 : -1)
+            })
+        });
+
+        if (response.ok) {
+            loadUsers();
+        }
+    } catch (err) {
+        console.error('Error adjusting points:', err);
+    }
+}
+
+async function updateAgent(username, agent) {
+    try {
+        const response = await fetch(`/api/admin/users/${username}/agent`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ agent })
+        });
+
+        if (response.ok) {
+            loadUsers();
+        }
+    } catch (err) {
+        console.error('Error updating agent:', err);
     }
 } 
