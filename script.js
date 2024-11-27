@@ -97,3 +97,93 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadUserData(username);
     setInterval(() => loadUserData(username), 5000);
 });
+
+class NiuNiuGame {
+    constructor() {
+        this.gameState = 'waiting'; // waiting, bidding, betting, dealing
+        this.currentBanker = null;
+        this.highestBid = 0;
+        this.initializeElements();
+        this.initializeEventListeners();
+    }
+
+    initializeElements() {
+        this.statusText = document.getElementById('statusText');
+        this.countdown = document.getElementById('countdown');
+        this.bidBtn = document.querySelector('.bid-btn');
+        this.betBtn = document.querySelector('.bet-btn');
+        this.inputModal = document.getElementById('inputModal');
+        this.amountInput = document.getElementById('amountInput');
+        this.redPacketModal = document.getElementById('redPacketModal');
+    }
+
+    initializeEventListeners() {
+        this.bidBtn.addEventListener('click', () => this.showBidModal());
+        this.betBtn.addEventListener('click', () => this.showBetModal());
+        document.getElementById('confirmAmount').addEventListener('click', () => this.handleAmountConfirm());
+    }
+
+    startBiddingPhase() {
+        this.gameState = 'bidding';
+        this.statusText.textContent = 'Banker Bidding Phase';
+        this.bidBtn.disabled = false;
+        this.startCountdown(10, () => this.finalizeBanker());
+    }
+
+    startBettingPhase() {
+        this.gameState = 'betting';
+        this.statusText.textContent = 'Betting Phase';
+        this.betBtn.disabled = false;
+        this.startCountdown(20, () => this.finalizeBetting());
+    }
+
+    showBidModal() {
+        this.inputModal.classList.remove('hidden');
+        document.getElementById('modalTitle').textContent = 'Enter Bid Amount';
+    }
+
+    showBetModal() {
+        this.inputModal.classList.remove('hidden');
+        document.getElementById('modalTitle').textContent = 'Enter Bet Amount';
+    }
+
+    handleAmountConfirm() {
+        const amount = parseInt(this.amountInput.value);
+        if (!amount || isNaN(amount)) {
+            alert('Please enter a valid amount');
+            return;
+        }
+
+        if (this.gameState === 'bidding') {
+            this.handleBankerBid(amount);
+        } else if (this.gameState === 'betting') {
+            this.handlePlayerBet(amount);
+        }
+
+        this.inputModal.classList.add('hidden');
+        this.amountInput.value = '';
+    }
+
+    startCountdown(seconds, callback) {
+        let timeLeft = seconds;
+        this.countdown.textContent = timeLeft;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            this.countdown.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                callback();
+            }
+        }, 1000);
+    }
+
+    // ... Add more game logic methods as needed
+}
+
+// Initialize game when document is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const game = new NiuNiuGame();
+    window.game = game; // For debugging
+});

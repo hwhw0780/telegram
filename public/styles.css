@@ -180,4 +180,79 @@ button:disabled {
 /* Utilities */
 .hidden {
     display: none !important;
+}
+
+/* Modals */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--primary-color);
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.amount-input {
+    padding: 0.8rem;
+    font-size: 1.2rem;
+    margin: 1rem 0;
+    background: var(--secondary-color);
+    border: 1px solid var(--accent-color);
+    color: white;
+    border-radius: 8px;
+    width: 200px;
+}
+
+.red-packet {
+    width: 200px;
+    height: 250px;
+    background: linear-gradient(145deg, #ff4444, #ff0000);
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse 1.5s infinite;
+}
+
+.open-packet-btn {
+    padding: 1rem 2rem;
+    background: gold;
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.game-status {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-color);
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.countdown {
+    margin-left: 1rem;
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 } 

@@ -82,6 +82,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- Red Packet Modal -->
+        <div id="redPacketModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="red-packet">
+                    <button id="openPacket" class="open-packet-btn">OPEN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bid/Bet Input Modal -->
+        <div id="inputModal" class="modal hidden">
+            <div class="modal-content">
+                <h3 id="modalTitle">Enter Amount</h3>
+                <input type="number" id="amountInput" class="amount-input">
+                <button id="confirmAmount" class="confirm-btn">Confirm</button>
+            </div>
+        </div>
+
+        <!-- Game Status -->
+        <div class="game-status">
+            <span id="statusText">Waiting for next game...</span>
+            <span id="countdown" class="countdown"></span>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
