@@ -37,9 +37,9 @@ function displayUsers(users) {
             <td>
                 <div class="points-edit">
                     <span>${user.points}</span>
-                    <input type="number" placeholder="Amount">
-                    <button onclick="adjustPoints('${user.username}', this.previousElementSibling.value, true)">+</button>
-                    <button onclick="adjustPoints('${user.username}', this.previousElementSibling.value, false)">-</button>
+                    <input type="number" placeholder="Amount" min="0">
+                    <button class="action-btn" onclick="adjustPoints('${user.username}', this.previousElementSibling.value, true)">+</button>
+                    <button class="action-btn" onclick="adjustPoints('${user.username}', this.previousElementSibling.value, false)" style="background: #ff4757">-</button>
                 </div>
             </td>
             <td>
@@ -84,7 +84,7 @@ async function deleteUser(username) {
 }
 
 async function adjustPoints(username, amount, isAdd) {
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || amount <= 0) {
         alert('Please enter a valid amount');
         return;
     }
@@ -101,10 +101,13 @@ async function adjustPoints(username, amount, isAdd) {
         });
 
         if (response.ok) {
-            loadUsers();
+            loadUsers(); // Refresh the display
+        } else {
+            alert('Failed to adjust points');
         }
     } catch (err) {
         console.error('Error adjusting points:', err);
+        alert('Error adjusting points');
     }
 }
 
