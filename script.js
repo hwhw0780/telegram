@@ -103,8 +103,11 @@ class NiuNiuGame {
         this.gameState = 'waiting'; // waiting, bidding, betting, dealing
         this.currentBanker = null;
         this.highestBid = 0;
+        this.bids = new Map(); // Store all bids
+        this.bets = new Map(); // Store all bets
         this.initializeElements();
         this.initializeEventListeners();
+        this.startGameLoop();
     }
 
     initializeElements() {
@@ -115,6 +118,8 @@ class NiuNiuGame {
         this.inputModal = document.getElementById('inputModal');
         this.amountInput = document.getElementById('amountInput');
         this.redPacketModal = document.getElementById('redPacketModal');
+        this.bankerTableBody = document.getElementById('bankerTableBody');
+        this.playersTableBody = document.getElementById('playersTableBody');
     }
 
     initializeEventListeners() {
@@ -123,18 +128,157 @@ class NiuNiuGame {
         document.getElementById('confirmAmount').addEventListener('click', () => this.handleAmountConfirm());
     }
 
-    startBiddingPhase() {
-        this.gameState = 'bidding';
-        this.statusText.textContent = 'Banker Bidding Phase';
-        this.bidBtn.disabled = false;
+    startGameLoop() {
+        // Start with waiting state
+        this.setGameState('waiting');
+        
+        // After 5 seconds, start bidding phase
+        setTimeout(() => this.startBiddingPhase(), 5000);
+    }
+
+    setGameState(state) {
+        this.gameState = state;
+        switch(state) {
+            case 'waiting':
+                this.statusText.textContent = 'Waiting for next game...';
+                this.bidBtn.disabled = true;
+                this.betBtn.disabled = true;
+                break;
+            case 'bidding':
+                this.statusText.textContent = 'Banker Bidding Phase';
+                this.bidBtn.disabled = false;
+                this.betBtn.disabled = true;
+                break;
+            case 'betting':
+                this.statusText.textContent = 'Betting Phase';
+                this.bidBtn.disabled = true;
+                this.betBtn.disabled = false;
+                break;
+            case 'dealing':
+                this.statusText.textContent = 'Dealing Phase';
+                this.bidBtn.disabled = true;
+                this.betBtn.disabled = true;
+                break;
+        }
+    }
+
+    async handleBankerBid(amount) {
+        const username = this.getCurrentUsername();
+        if (!username) return;
+
+        if (amount <= this.highestBid) {
+            alert('Bid must be higher than current highest bid: ' + this.highestBid);
+            return;
+        }
+
+        this.bids.set(username, amount);
+        this.highestBid = amount;
+        this.currentBanker = username;
+        
+        // Update banker table
+        this.updateBankerDisplay();
+        
+        // Reset countdown for rebidding
         this.startCountdown(10, () => this.finalizeBanker());
     }
 
+    async handlePlayerBet(amount) {
+        const username = this.getCurrentUsername();
+        if (!username || username === this.currentBanker) return;
+
+        this.bets.set(username, amount);
+        this.updatePlayersDisplay();
+    }
+
+    finalizeBanker() {
+        if (!this.currentBanker) {
+            this.startGameLoop(); // No bids, restart game
+            return;
+        }
+
+        this.statusText.textContent = `${this.currentBanker} is the banker with ${this.highestBid} bid!`;
+        setTimeout(() => this.startBettingPhase(), 3000);
+    }
+
     startBettingPhase() {
-        this.gameState = 'betting';
-        this.statusText.textContent = 'Betting Phase';
-        this.betBtn.disabled = false;
-        this.startCountdown(20, () => this.finalizeBetting());
+        this.setGameState('betting');
+        this.startCountdown(60, () => this.finalizeBetting());
+    }
+
+    finalizeBetting() {
+        this.setGameState('dealing');
+        if (this.getCurrentUsername() === this.currentBanker) {
+            // Show Deal Now button only to banker
+            this.showDealButton();
+        }
+    }
+
+    showDealButton() {
+        const dealBtn = document.createElement('button');
+        dealBtn.textContent = 'Deal Now';
+        dealBtn.className = 'action-btn';
+        dealBtn.onclick = () => this.dealCards();
+        document.querySelector('.banker-actions').appendChild(dealBtn);
+    }
+
+    dealCards() {
+        // Show red packets to all players who bet and the banker
+        this.bets.forEach((bet, username) => {
+            this.showRedPacketToPlayer(username);
+        });
+        this.showRedPacketToPlayer(this.currentBanker);
+    }
+
+    showRedPacketToPlayer(username) {
+        if (username === this.getCurrentUsername()) {
+            this.redPacketModal.classList.remove('hidden');
+        }
+    }
+
+    getCurrentUsername() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get('user');
+    }
+
+    updateBankerDisplay() {
+        this.bankerTableBody.innerHTML = '';
+        if (this.currentBanker) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${this.currentBanker}</td>
+                <td>${this.highestBid}</td>
+                <td>-</td>
+            `;
+            this.bankerTableBody.appendChild(row);
+        }
+    }
+
+    updatePlayersDisplay() {
+        this.playersTableBody.innerHTML = '';
+        this.bets.forEach((bet, username) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${username}</td>
+                <td>${bet}</td>
+                <td>-</td>
+            `;
+            this.playersTableBody.appendChild(row);
+        });
+    }
+
+    startCountdown(seconds, callback) {
+        let timeLeft = seconds;
+        this.countdown.textContent = timeLeft;
+        
+        const timer = setInterval(() => {
+            timeLeft--;
+            this.countdown.textContent = timeLeft;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                callback();
+            }
+        }, 1000);
     }
 
     showBidModal() {
@@ -162,21 +306,6 @@ class NiuNiuGame {
 
         this.inputModal.classList.add('hidden');
         this.amountInput.value = '';
-    }
-
-    startCountdown(seconds, callback) {
-        let timeLeft = seconds;
-        this.countdown.textContent = timeLeft;
-        
-        const timer = setInterval(() => {
-            timeLeft--;
-            this.countdown.textContent = timeLeft;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                callback();
-            }
-        }, 1000);
     }
 
     // ... Add more game logic methods as needed
