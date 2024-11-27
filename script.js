@@ -28,8 +28,14 @@ async function leaveRoom(username) {
     }
 }
 
-async function updatePlayerCount(count) {
-    document.querySelector('.room-status').textContent = `Online Players: ${count}`;
+async function updatePlayerCount() {
+    try {
+        const response = await fetch('/api/room/count');
+        const data = await response.json();
+        document.querySelector('.room-status').textContent = `Online Players: ${data.count}`;
+    } catch (err) {
+        console.error('Error updating player count:', err);
+    }
 }
 
 function enterNiuNiu() {
@@ -49,12 +55,5 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-setInterval(async () => {
-    try {
-        const response = await fetch('/api/room/count');
-        const data = await response.json();
-        updatePlayerCount(data.count);
-    } catch (err) {
-        console.error('Error updating player count:', err);
-    }
-}, 5000);
+setInterval(updatePlayerCount, 5000);
+updatePlayerCount();
