@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gaming Hub</title>
+    <title>NiuNiu Game</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- Top Bar (Always visible) -->
+        <!-- Top Bar -->
         <div class="top-bar">
             <div class="room-info">
                 <span class="player-count">Online Players: 0</span>
@@ -23,74 +23,46 @@
             </div>
         </div>
 
-        <!-- Lobby Section -->
-        <div id="lobbySection" class="lobby-section">
-            <div class="rooms-container">
-                <div class="room active" onclick="showGameRoom()">
-                    <div class="room-content">
-                        <div class="room-icon">🎲</div>
-                        <h2>NIUNIU ROOM</h2>
-                        <button class="enter-btn">Enter Room</button>
+        <!-- Game Area -->
+        <div class="game-area">
+            <!-- Left Side - Banker & Chat -->
+            <div class="left-section">
+                <div class="banker-section">
+                    <h2>Banker</h2>
+                    <div class="banker-box">
+                        <table class="game-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Bet</th>
+                                    <th>Get</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bankerTableBody">
+                                <!-- Banker info will be here -->
+                            </tbody>
+                        </table>
+                        <div class="banker-actions">
+                            <button class="bid-btn">Bid Banker</button>
+                        </div>
                     </div>
-                    <div class="pulse"></div>
                 </div>
 
-                <div class="room disabled">
-                    <div class="room-content">
-                        <div class="room-icon">🎰</div>
-                        <h2>CASINO ROOM</h2>
-                        <p class="room-status">Coming Soon</p>
-                        <div class="locked-badge">
-                            <span>🔒</span>
-                        </div>
+                <div class="chat-section">
+                    <h3>Chat</h3>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="messageInput" placeholder="Type a message...">
+                        <button onclick="sendMessage()">Send</button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Game Room Section (Initially Hidden) -->
-        <div id="gameSection" class="game-section hidden">
-            <div class="game-area">
-                <!-- Left Side - Banker -->
-                <div class="banker-side">
-                    <div class="banker-container">
-                        <h2>Banker</h2>
-                        <div class="banker-box">
-                            <div class="banker-info">
-                                <table class="game-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Bet</th>
-                                            <th>Get</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="bankerTableBody">
-                                        <!-- Banker info will be here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="banker-actions">
-                                <button class="bid-btn">Bid Banker</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Section -->
-                    <div class="chat-container">
-                        <h3>Chat</h3>
-                        <div class="chat-messages" id="chatMessages"></div>
-                        <div class="chat-input">
-                            <input type="text" id="messageInput" placeholder="Type a message...">
-                            <button onclick="sendMessage()">Send</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Side - Players -->
-                <div class="players-side">
+            <!-- Right Side - Players -->
+            <div class="right-section">
+                <div class="players-section">
                     <h2>Players</h2>
-                    <div class="players-table-container">
+                    <div class="players-table">
                         <table class="game-table">
                             <thead>
                                 <tr>
