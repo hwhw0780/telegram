@@ -17,6 +17,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+// Add this before your routes
+app.use((req, res, next) => {
+    console.log('Request URL:', req.url);
+    next();
+});
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))

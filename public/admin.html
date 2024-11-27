@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin-styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Admin Dashboard</h1>
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="stat-label">Total Users</span>
+                    <span class="stat-value" id="totalUsers">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Total Points</span>
+                    <span class="stat-value" id="totalPoints">0</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="users-section">
+                <h2>Users</h2>
+                <div class="search-bar">
+                    <input type="text" id="searchUser" placeholder="Search by username...">
+                </div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Points</th>
+                            <th>Game History</th>
+                            <th>Transactions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    <script src="admin.js"></script>
+</body>
+</html> 
