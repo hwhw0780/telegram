@@ -6,18 +6,8 @@ require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const bot = new TelegramBot(token, {
-    polling: {
-        autoStart: true,
-        params: {
-            timeout: 10,
-            allowed_updates: ["message"],
-            session_id: Date.now()
-        }
-    },
-    webHook: false,
-    request: {
-        retryAfter: 1000,
-        retries: 3
+    webHook: {
+        port: process.env.PORT || 3001
     }
 });
 
@@ -166,33 +156,24 @@ bot.on('error', (error) => {
     console.log('Telegram Bot Error:', error);
 });
 
-// Add polling error handler
-bot.on('polling_error', (error) => {
-    console.log('Polling Error:', error.code);
-    if (error.code === 'ETELEGRAM' && error.response.statusCode === 409) {
-        console.log('Conflict detected, waiting before restart...');
-        setTimeout(() => {
-            bot.stopPolling()
-                .then(() => new Promise(resolve => setTimeout(resolve, 5000)))
-                .then(() => {
-                    console.log('Restarting polling...');
-                    return bot.startPolling();
-                })
-                .catch(err => {
-                    console.error('Error restarting bot:', err);
-                });
-        }, 10000);
-    }
+// Set webhook URL (add this after bot initialization)
+const url = 'https://niu-niu-game.onrender.com';
+bot.setWebHook(`${url}/bot${token}`);
+
+// Add webhook handler
+app.post(`/bot${token}`, (req, res) => {
+    bot.handleUpdate(req.body);
+    res.sendStatus(200);
 });
 
-// Add connection success handler
-bot.on('polling_success', (msg) => {
-    console.log('Bot polling successful');
+// Remove polling error handlers since we're not using polling
+bot.on('webhook_error', (error) => {
+    console.log('Webhook Error:', error.code);
 });
 
-// Add this to see if bot is receiving messages
-bot.on('message', (msg) => {
-    console.log('Received message:', msg);
+// Add webhook success handler
+bot.on('webhook_success', (msg) => {
+    console.log('Webhook successful');
 });
 
 // Serve static files
